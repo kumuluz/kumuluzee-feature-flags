@@ -1,0 +1,10 @@
+#exclude idea
+**/.idea
+
+#exclude ObjectStore
+**/ObjectStore
+
+#exclude target
+**/target
+
+*.iml
