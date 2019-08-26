@@ -1,0 +1,26 @@
+language: java
+dist: trusty
+
+jdk:
+- openjdk8
+
+env:
+  global:
+    - secure: "lHcUCx4PTE+eKkKNgSJOQmjOL2Ex/ECjkZtsQqTs5G/ASV/gjnNYQgFGkBMqTNh58r6HsgaHb3Kb9xeS8cMLCakkPwksbndybhSC4JSEqLQSrKGXEub1P7BB1vZTMYaGExH6k6uXv5Eu8C0Y4kXuAuxHViY4qNi+4mRQQ2KpRH4wf78knHIYwLb9H5dPpuzvxlZ8m5zaqBhtWaUCIEF5srZcFLGRzmKNrghS/+1jJNtnBbw9ErwnQPlUFrQ5XPBLNeJvN+ydWE7zKO3UzhMVav+QxOsAGoHtw91PX7QmtkLttB5atPKxVpn8AyjSilhVoNVCloBoAoy6Xvw7916Zpik0YU5B5iVeGqhOM8bMDNm6ULNUIoEOirfnvB9wCRtrPm5tg37e4ofIW8fSbDq0B9cWzk9PdI41azTpcigACAO+ZdSqIB5YG3O9CsUpq+lEd3Js4kl/naGGBMANym2HB4XveNX4rfeue9OZPSl6m2kxhGbBAogKETXG3IOja0sX0tF7mWrTVbcWKpJdhh5GrT/4opcA9OAM7fqoNZlq0cOnEz8RyEH2evh1NFQAGvVU9hDUfx5SJ6t60x7CFdE0zHIVhyoqCcVa4LEQt5SjuEza7mxZofSIYqDXdNjMupVJaR7+6WQXOwHeGuNHsP8qeJqNHesJyNQhDahCQ1mcLPY="
+    - secure: "G9JEKLGX9uxObG0MRUrpPSFcmQqcbtKgiLEOk7IjJEerMruUuc3A9ZHfWaKC48YrmtWC9gf9rTLOit34/k3BmafnIEcKYVe2ZBwJkLP8ftyqlHcQS0JatgqDf3ifIcbWa/dGx3fsEkTXVNYeHfF5kIHty/40FxrUI9Jkz9qQ+gkHpiBbpfPMx+010Fesa3wWrZCM9cV3dGgNVBh/k2AwVdsp5CZhGIO1l5MQohtnnSLaDlYDFrn3CxndPNE2h7niRRZDA9g3cgyEQN9iUGbpWTaN8mnkgbMHoOrZukAvNWx/j7aRlCxqBIRRWLdEfxxlvVX6FuaX+myCtx0c+kgsnDWk86LT3WE87Q4/8lhXLkReHVzU0COM0cgxctSS4aMZ5QP1ZfM+teu8re6PJncp/oaKgIDy0Ypp1jHpju3D724p4YrqoMlb0JQG0N86BIm+oJaWKLoIqE7YyKsebYxUKPeZNBX7MDobchK2ik2QGhJ1jrGGhZbjcWViwDiLQ2dFulzxg4zC/3OtKfUEZpPSK9gc9SI7xEv+zYdAdUA9Ud9MM4B/Yp1O8S8G5RP5WEyeOQy8q8c2Ayy3jauAl3+dQQ5q5ABaIbCEzbTNQ2/TQYx5MisFsdgZ0Zv+XPYyJJn6gFNKojrfYStidB8csNPYq5RPD+aMwLPEXIVO5DqrZVU="
+    - secure: "q9Au47FbYFN24gsySnMC4nx7PDyNULiNpyyfcZPqxf0ajY//vnuz5knDN/BCllBNwwmA6SaBw3mTgWKy/CLEuQ+B66EzJsU9WFVNGFbzNkRRm72o9Mwr5a3XmhN3rsimY0h6S4PfHLIHexdks6mAmpHF6Zrb5ZVkkYvQ4AtAevB+NT1o8dZfJKo2Er8h7T/gry68tmHjzLfuYqdTCbGgb9Lkbw/+4rw+7jERhZfibKXp1+460sqtqJSjkySfn2Ts5eMrHsxuCJQ9GXVrHJ8H3qMcWj2+B8G6/FnBYOITXiUiK7CLcQMIyQaGWXdaaAA5DmOVLkKul35sw9x7hqBgni8b9Z24xcHzNiTfQdX5z9m+pcz33tuWrQUL3/t6MJN8D8e5W6BKwzbG58HQ1y+mFKS5dcURrtS724BlRH6JAlO4vZC+FKqU2QWUmFpV7baO7DahF9zJhSIhdUazAWKRMql+phhM48wC3a3LV3h+RmEvMsBHMMSGGDDsvnsmPjkr3aWyfR4XSzU1qGoK3Uq3uA25VqaoaAp1T6gd8XZLDiikBFdk7BPsTfWwyzWYPgwcg851CVn7DhkDOLjobyOjYhg4LQKFfgyD38X9FDvyvDCK3xcpTDiaSe8ZXiEjZchKQZ0ThsyeHhWShn/zOaM0SBcmlZz5z8e3LkFpd6+zjJI="
+
+cache:
+  directories:
+  - "$HOME/.m2"
+
+install: mvn clean install -DskipTests=true -V -U
+script: mvn test
+
+after_success:
+# Deploy to OSSHR
+- if [[ $TRAVIS_PULL_REQUEST == "false" && ($TRAVIS_BRANCH == "master" || $TRAVIS_TAG) ]]; then
+    openssl aes-256-cbc -K $encrypted_ef396dfa673a_key -iv $encrypted_ef396dfa673a_iv -in gpg.tar.gz.enc -out gpg.tar.gz -d;
+    tar xvf gpg.tar.gz;
+    mvn source:jar javadoc:jar deploy -Pdeploy -DskipTests=true --settings ./settings.xml;
+  fi
